@@ -11,6 +11,15 @@ Run in the desired directory
 git clone https://github.com/luckylinux/jk-bms-build-helpers.git
 ```
 
+# Configure Device Database
+A very rudimentary Device Database is provided in `devices.sh`.
+
+This containts:
+- The device name
+- The device mac address
+- The driver to be used (refer to syssi esphome-jk-bms documentation)
+
+
 # Configure
 ## General
 Set the required secrets/parameters in `secrets.sh`.
