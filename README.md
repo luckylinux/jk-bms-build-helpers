@@ -20,14 +20,14 @@ This containts:
 - The driver to be used (refer to syssi esphome-jk-bms documentation)
 
 
-# Configure
-## General
+# Configure Secrets (WiFi, MQTT, etc)
 Set the required secrets/parameters in `secrets.sh`.
 
+# Configure Board and set Other Parameters
 ## Board Configuration
 The board can **only** be configured in the respective build script (e.g. `esphome-jk-bms/build_esphome_jk_bms.sh`) as ESPHome doesn't allow this variable/parameter to be set as a secret.
 
-# Text Substitution using BASH Script
+## Text Substitution using BASH Script
 In order to fix this, `functions.sh` can perform text-substitution in the .yaml file **after** it is copied to the build directory and **before** `esphome run` launches the build).
 
 The usage is illustrated in e.g. `esphome-jk-bms/build_esphome_jk_bms.sh`.
