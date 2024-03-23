@@ -5,6 +5,12 @@ Tested with:
 - syssi esphome-jk-bms: https://github.com/syssi/esphome-jk-bms
 - sleeper85 esphome-jk-bms-can: https://github.com/Sleeper85/esphome-jk-bms-can
 
+# Download
+Run in the desired directory
+```
+git clone https://github.com/luckylinux/jk-bms-build-helpers.git
+```
+
 # Configure
 ## General
 Set the required secrets/parameters in `secrets.sh`.
