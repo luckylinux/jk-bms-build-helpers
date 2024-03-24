@@ -212,10 +212,16 @@ wifi:
 
 captive_portal:
 
-#web_server:
-#  port: 80
-#  log: false
-#  ota: false
+web_server:
+  port: 80
+  version: 2 # Version 1 displays as a table. Version 2 uses web components and has more functionality. Defaults to 2.
+  log: true
+  local: true # No internet/intranet required on the clients (all assets are inlined, compressed and served from flash)
+  include_internal: true # Whether internal entities should be displayed on the web interface. Defaults to false
+  ota: false
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
 
 # +--------------------------------------+
 # | ** Don't make changes below this **  |
