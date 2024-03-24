@@ -9,6 +9,9 @@ parentpath=$(dirname $currentpath)
 # Define board
 board="esp32-s3-devkitc-1" # Works for Atom S3 Lite
 
+# Define variant
+variant="esp32s3" # Works for Atom S3 Lite
+
 # Build folder
 buildpath="$HOME/ESPHome"
 mkdir -p $buildpath
@@ -59,9 +62,23 @@ cp -r $currentpath/v2 ./
 # Execute Text Replacement
 source $parentpath/functions.sh
 replace_text "./$esphomeconfig" "board" "$board"
+replace_text "./$esphomeconfig" "variant" "$variant"
 
 # Build ESPHome
 esphome run $esphomeconfig
+
+# Manage errors & try again
+echo -e "In case of errors, it is suggested to run: esphome clean.\n"
+read -p "Do you want to clean the build files & try build again: [Y/N] " tryagain
+echo -e "\n"
+
+# Clean build files and try again ?
+if [ "$tryagain" == "Y" ] || [ "$tryagain" == "y" ]
+then
+   # Run clean & try again"
+   esphome clean $esphomeconfig
+   esphome run $esphomeconfig
+fi
 
 # Change back to currentpath
 cd $currentpath
