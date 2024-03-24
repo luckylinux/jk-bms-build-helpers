@@ -52,6 +52,10 @@ source $parentpath/secrets.sh
 # If you use a esp8266 run the esp8266-examle.yaml
 cp $currentpath/$esphomeconfig ./$esphomeconfig
 
+# Copy Required CSS/JS For Webserver into BuildFolder
+cp -r $currentpath/v1 ./
+cp -r $currentpath/v2 ./
+
 # Execute Text Replacement
 source $parentpath/functions.sh
 replace_text "./$esphomeconfig" "board" "$board"
