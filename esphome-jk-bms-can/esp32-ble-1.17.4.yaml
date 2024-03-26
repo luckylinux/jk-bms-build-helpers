@@ -951,7 +951,7 @@ number:
     id: "rebulk_voltage"
     step: 0.1
     min_value: 51.2
-    max_value: 54.6
+    max_value: 56.0
     restore_value: true
     mode: "${input_number_mode}"
     initial_value: "${rebulk_v}"
@@ -1351,7 +1351,7 @@ interval:
                         float cell_rebulk_v = (id(rebulk_voltage).state / id(cell_count).state);
                         float cell_absorption_offset_v = (id(absorption_offset).state / id(cell_count).state);
                         static int num_executions = 0;
-                        int target_num_executions = max(15 , id(float_delay_cycles).state);
+                        int target_num_executions = max(15 , int(id(float_delay_cycles).state));
                         
                         // Force Bulk Logic
                         if (id(can_switch_force_bulk).state) {
