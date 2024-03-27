@@ -30,7 +30,7 @@ pip3 install esphome
 # Clone this external component
 #git clone https://github.com/syssi/esphome-jk-bms.git esphome-jk-bms-master
 #cd esphome-jk-bms-master
-version="1.17.4"
+version="1.17.5"
 if [[ ! -f "esphome-jk-bms-can-$version.tar.gz" ]]
 then
    wget https://github.com/Sleeper85/esphome-jk-bms-can/archive/refs/tags/V$version.tar.gz -O esphome-jk-bms-can-$version.tar.gz
