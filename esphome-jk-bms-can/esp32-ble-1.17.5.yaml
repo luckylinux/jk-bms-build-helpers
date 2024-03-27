@@ -317,7 +317,7 @@ ble_client:
 jk_bms_ble:
   - ble_client_id: client0
     protocol_version: ${protocol_version}
-    throttle: 3s
+    throttle: 1s
     id: bms0
     # enable_fake_traffic: true
 
