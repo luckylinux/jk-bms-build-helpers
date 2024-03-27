@@ -84,7 +84,7 @@ substitutions:
 
   # Factor to adjust the aggression of the auto voltage control logic.
   # The higher the setting, the more that requested charge voltage will reduce as cells exceed the target voltage (bulk voltage).
-  charge_v_factor_default: "2.0"
+  charge_v_factor_setting_default: "2.0"
 
   # End of charge (EOC) will be triggered if current and max cell voltage meet cut-off thresholds, plus the cycle count exceeds the below threshold.
   # As default, this cycle count is set to 60 which is approximately 60 seconds. This will reduce the liklihood of premature EOC.
@@ -795,7 +795,7 @@ sensor:
     internal: true
     lambda: !lambda |-
             // Variables
-            float charge_v_factor = id(charge_v_factor).state;
+            float charge_v_factor = id(charge_v_factor_setting).state;
             float cell_bulk_v = (id(bulk_voltage).state / id(cell_count).state);
             float target_total_v = 0;
             float excess_v = 0;
@@ -990,13 +990,13 @@ number:
     entity_category: config
   - platform: template
     name: "${name} Voltage Charge Factor"
-    id: "charge_v_factor"
+    id: "charge_v_factor_setting"
     step: 0.1
     min_value: 1.0
     max_value: 5.0
     restore_value: true
     mode: "${input_number_mode}"
-    initial_value: "${charge_v_factor_default}"
+    initial_value: "${charge_v_factor_setting_default}"
     unit_of_measurement: "factor"
     icon: mdi:cog
     optimistic: true
