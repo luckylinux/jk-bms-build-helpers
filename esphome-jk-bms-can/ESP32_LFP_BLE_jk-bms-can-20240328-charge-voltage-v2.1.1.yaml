@@ -42,24 +42,21 @@
 substitutions:
 # +--------------------------------------+
   # name that will appear in esphome and homeassistant.
-  name: !secret host_name
-
-  device_description: "Monitor and control a JK-BMS and Inverter via bluetooth"
-
+  name: jk-bms-ble-can
 # +--------------------------------------+
 # | Bluetooth Settings                   |
 # +--------------------------------------+
   # Please use "JK02_24S" if you own a old JK-BMS < hardware version 11.0 (hardware version >= 6.0 and < 11.0)
   # Please use "JK02_32S" if you own a new JK-BMS >= hardware version 11.0 (f.e. JK-B2A8S20P hw 11.XW, sw 11.26)
   # Please use "JK04" if you have some old JK-BMS <= hardware version 3.0 (f.e. JK-B2A16S hw 3.0, sw. 3.3.0)
-  protocol_version: !secret jk_protocol
-  mac_address: !secret jk_mac_address
+  protocol_version: JK02_32S
+  mac_address: C8:47:8C:10:7E:AB
 # +--------------------------------------+
 # | Battery Charge Settings              |
 # +--------------------------------------+
   # This is max charging amps eg 100A, for Bulk - Constant Current charging(CC), should be at least 10A less than BMS change current protection, 0.5C max
   # 100A * 50V = 5000W
-  charge_a: "200"
+  charge_a: "100"
   # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of the absorption phase. (53.6V = 3.35V/Cell for 16S battery)
   float_v: "53.6"
   # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (55.2V = 3.45V/Cell for 16S battery)
@@ -72,45 +69,41 @@ substitutions:
   # Inverter offset, allows you to correct the inverter charging voltage
   # For example, with my Deye, if the requested charging voltage is 55.2v the Deye effective charging voltage will be 55.1v
   # An offset of 0.1 provides an effective charging voltage of 55.2v
-  inverter_offset_v: "0.1"
+  inverter_offset_v: "0.0"
   # Auto charge current control will automatically reduce the charging current as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
   # If unsure, leave the below settings as default, this will ensure charge current will taper correctly.
   # Factor to control the end of the charge current curve. A setting below 2 will extend the curve, above 2 will shorten the curve. 
-  charge_a_factor_curve_end_default: "2.0"
+  charge_a_factor_curve_end: "2.0"
   # Factor to adjust the shape of the charge current curve.
   # A setting below 1 will reduce current at a slow rate after the float voltage is reached, then increase as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
   # A factor above 1 will reduce current at a fast rate after the float voltage is reached, then slow as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
-  charge_a_factor_curve_shape_default: "1.8"
-
+  charge_a_factor_curve_shape: "1.8"
   # Factor to adjust the aggression of the auto voltage control logic.
-  # The higher the setting, the more that requested charge voltage will reduce as cells exceed the target voltage (bulk voltage).
-  charge_v_factor_setting_default: "2.0"
-
-   # Factor to adjust the speed of the auto voltage control logic.
+  # The higher the setting, the greater the voltage penalty applied to cells exceeding the target voltage (bulk voltage).
+  charge_v_factor: "1.5"
+  # Factor to adjust the speed of the auto voltage control logic.
   # The higher the setting, the longer the period of time that voltage changes are applied over.
-  charge_t_factor_setting_default: "5"
-
+  charge_t_factor: "5"
   # End of charge (EOC) will be triggered if current and max cell voltage meet cut-off thresholds, plus the cycle count exceeds the below threshold.
   # As default, this cycle count is set to 60 which is approximately 60 seconds. This will reduce the liklihood of premature EOC.
-  eoc_cycle_threshold_default: "60" # Approx. 60 seconds
-
+  eoc_cycle_threshold: "60"
 # +--------------------------------------+
 # | Battery Discharge Settings           |
 # +--------------------------------------+
   # Max discharge amps eg 120, should be at least 10A less than BMS over discharge current protection, 0.5C max
   # 120A * 50V = 6000W
-  discharge_a: "200"
+  discharge_a: "120"
   # +--------------------------------------+
   # | Use the settings below with caution  |
   # +--------------------------------------+
   # Auto discharge current control will automatically reduce the charging current as a cell reaches the BMS "cell_voltage_undervoltage_recovery".
   # If unsure, leave the below settings as default, this will ensure discharge current will taper correctly.
   # Factor to control the end of the discharge current curve. A setting below 2 will extend the curve, above 2 will shorten the curve. 
-  discharge_a_factor_curve_end_default: "2.0"
+  discharge_a_factor_curve_end: "2.0"
   # Factor to adjust the shape of the charge current curve.
   # A setting below 1 will reduce current at a slow rate after the float voltage is reached, then increase as a cell reaches the BMS "cell_voltage_undervoltage_recovery".
   # A factor above 1 will reduce current at a fast rate after the float voltage is reached, then slow as a cell reaches the BMS "cell_voltage_undervoltage_recovery".
-  discharge_a_factor_curve_shape_default: "1.8"
+  discharge_a_factor_curve_shape: "1.8"
   # Discharge knee voltage, the point at which a cell will reduce in voltage more rapidly. For LiFePO4 cells, this is generally considered to be 3.1v.
   discharge_knee_v: "3.1"
 # +--------------------------------------+
@@ -133,7 +126,6 @@ substitutions:
   otp: "45.0"
   # Low Temp Protection  - Temp < UTP : Stop Charging
   utp: "1.0"
-
 # +--------------------------------------+
 # | Home Assistant Display Settings      |
 # +--------------------------------------+
@@ -142,36 +134,19 @@ substitutions:
 # +--------------------------------------+
 # | ESP32 CAN port pins                  |
 # +--------------------------------------+
-  # GPIO pins your CAN bus transceiver (TJA1050, TJA1051T, SN65HVD230, M5Stack Unit/Base, ...) is connected to the ESP, note! TX->TX and RX->RX. 
-  # Custom Hardware
-  #can_tx_pin: GPIO23
-  #can_rx_pin: GPIO22
+  # GPIO pins your CAN bus transceiver (TJA1050, TJA1051T or SN65HVD230) is connected to the ESP, note! TX->TX and RX->RX. 
+  can_tx_pin: GPIO23
+  can_rx_pin: GPIO22
 
-  # Using ATOMIC CANBus Base (CA-IS3050G) - SKU: A103
-  #can_tx_pin: GPIO5
-  #can_rx_pin: GPIO6
-
-  # Using CANBus Unit (CA-IS3050G) - SKU: U085
-  can_tx_pin: GPIO2
-  can_rx_pin: GPIO1
-  
 # +------------------------------------------------------------------+
 # | ** The settings below can be modified according to your needs ** |
 # +------------------------------------------------------------------+
   external_components_source: github://syssi/esphome-jk-bms@main
   # components
   # github://syssi/esphome-jk-bms@main
-
+  
 esphome:
   name: ${name}
-  platformio_options:
-    board_build.flash_mode: dio
-    build_flags:
-      - -DCONFIG_ARDUINO_LOOP_STACK_SIZE=32768
-  comment: ${device_description}
-  project:
-    name: !secret project_name
-    version: !secret project_version
   on_boot:
     then:
       - switch.turn_on: can_switch_charging
@@ -186,23 +161,18 @@ esphome:
 # +--------------------------------------+
 # For a stable Bluetooth connection keep the "esp-idf" framework
 esp32:
-  board: {{board}}
-  variant: {{variant}}
+  board: esp32doit-devkit-v1
   framework:
     type: esp-idf
 
 external_components:
   - source: ${external_components_source}
     refresh: 0s
-
+    
 logger:
-  hardware_uart: USB_SERIAL_JTAG
-#  level: DEBUG # For Debugging only
-  level: INFO # For Production
+  level: INFO
 
 ota:
-  safe_mode: true
-  password: !secret ota_password
   on_begin:
     then:
       - lambda: id(enable_bluetooth_connection).turn_off();
@@ -212,46 +182,30 @@ ota:
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
 # If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
-#api:
-#  reboot_timeout: 0s
+api:
+  reboot_timeout: 0s
 
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
-mqtt:
-  broker: !secret mqtt_host
-  port: !secret mqtt_port
-  username: !secret mqtt_username
-  password: !secret mqtt_password
-  id: mqtt_client
-  skip_cert_cn_check: true
+# mqtt:
+#  broker: !secret mqtt_host
+#  username: !secret mqtt_username
+#  password: !secret mqtt_password
+#  id: mqtt_client
 
 # In the event of problems with the WiFi network, the ESP32 will reboot every 15 minutes to try to resolve the problem.
 # If we don't want to connect the ESP32 to the WiFi network please remove the 4 lines below.
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  domain: !secret wifi_domain
+  domain: !secret domain
 
 captive_portal:
 
 #web_server:
 #  port: 80
-#  version: 2 # Version 1 displays as a table. Version 2 uses web components and has more functionality. Defaults to 2.
-#  log: true
-#  local: true # NOT SUPPORTED IN VERSION 1 - No internet/intranet required on the clients (all assets are inlined, compressed and served from flash)
-#  include_internal: true # Whether internal entities should be displayed on the web interface. Defaults to false
-#  ####css_include: "v1/www.css"  # v1
-#  ####css_url: ""                # v1
-#  ####js_include: "v1/www.js"    # v1
-#  ####js_url: ""                 # v1
-#  ####css_include: ""             # v2
-#  css_url: ""                 # v2
-#  js_include: "v2/www.js"     # v2
-#  js_url: ""                  # v2
+#  log: false
 #  ota: false
-#  auth:
-#    username: !secret web_server_username
-#    password: !secret web_server_password
 
 # +--------------------------------------+
 # | ** Don't make changes below this **  |
@@ -285,7 +239,7 @@ globals:
 
 output:
   - platform: gpio
-    pin: 35
+    pin: 2
     id: led
     inverted: true
 
@@ -321,7 +275,7 @@ ble_client:
 jk_bms_ble:
   - ble_client_id: client0
     protocol_version: ${protocol_version}
-    throttle: 1s
+    throttle: 3s
     id: bms0
     # enable_fake_traffic: true
 
@@ -706,7 +660,7 @@ sensor:
     id: auto_ccl_initial
     unit_of_measurement: A
     device_class: current
-    internal: true
+    internal: true  
     filters:
     - lambda: !lambda |-
               // Variables
@@ -714,7 +668,7 @@ sensor:
               // Auto Charge Current function
               if (id(can_switch_auto_charge_current).state) {
                 if (id(max_cell_voltage).state > id(cell_ovpr).state) return 0.0;
-                else return max(0.0,(- pow(id(charge_a_factor_curve_end).state , pow( max(0.0, ((x - cell_float_v) / (id(cell_ovpr).state - cell_float_v))), id(charge_a_factor_curve_shape).state))+2) * id(charging_current).state);
+                else return max(0.0,(- pow(${charge_a_factor_curve_end}, pow( max(0.0, ((x - cell_float_v) / (id(cell_ovpr).state - cell_float_v))),${charge_a_factor_curve_shape}))+2) * id(charging_current).state);
               }
               else return id(charging_current).state;
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
@@ -724,8 +678,8 @@ sensor:
     id:  auto_ccl_moving_average
     unit_of_measurement: A
     device_class: current
-    internal: true
-    filters:
+    internal: true  
+    filters:    
     - exponential_moving_average:
         alpha: 0.15
         send_every: 1
@@ -753,13 +707,13 @@ sensor:
     id: auto_dcl_initial
     unit_of_measurement: A
     device_class: current
-    internal: true
+    internal: true  
     filters:
     - lambda: !lambda |-
               // Auto Discharge Current function
               if (id(can_switch_auto_discharge_current).state) {
                 if (id(min_cell_voltage).state < id(cell_uvpr).state) return 0.0;
-                else return max(0.0,(- pow(id(discharge_a_factor_curve_end).state , pow( max(0.0, ((x - ${discharge_knee_v}) / (id(cell_uvpr).state - ${discharge_knee_v}))),id(discharge_a_factor_curve_shape).state))+2) * id(discharging_current).state);
+                else return max(0.0,(- pow(${discharge_a_factor_curve_end}, pow( max(0.0, ((x - ${discharge_knee_v}) / (id(cell_uvpr).state - ${discharge_knee_v}))),${discharge_a_factor_curve_shape}))+2) * id(discharging_current).state);
               }
               else return id(discharging_current).state;
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial discharge current values.
@@ -769,8 +723,8 @@ sensor:
     id:  auto_dcl_moving_average
     unit_of_measurement: A
     device_class: current
-    internal: true
-    filters:
+    internal: true  
+    filters:    
     - exponential_moving_average:
         alpha: 0.15
         send_every: 1
@@ -783,7 +737,7 @@ sensor:
     id: auto_dcl
     unit_of_measurement: A
     device_class: current
-    accuracy_decimals: 1
+    accuracy_decimals: 1                         
     internal: false
     filters:
     - lambda: !lambda |-
@@ -799,7 +753,7 @@ sensor:
     internal: true
     lambda: !lambda |-
             // Variables
-            float charge_v_factor = id(charge_v_factor_setting).state;
+            float charge_v_factor = ${charge_v_factor};
             float cell_bulk_v = (id(bulk_voltage).state / id(cell_count).state);
             float target_total_v = 0;
             float excess_v = 0;
@@ -826,23 +780,21 @@ sensor:
             for(int i = 0; i < id(cell_count).state; i++) {
               if (cell_array[i] >= cell_bulk_v) {
                 excess_v = cell_array[i] - cell_bulk_v;
-                // offset_v = (pow(excess_v,2))*(charge_v_factor*-100); // Charge Logic v2.0 - Can lead to oscillations
-                offset_v = excess_v * charge_v_factor;                  // Charge Logic v2.1.1 - Testing
+                offset_v = excess_v * charge_v_factor;
                 target_total_v += offset_v;
               }
             };
             // Use minimum of dynamic charge voltage or bulk voltage
             dyn_chg_v = min(id(bulk_voltage).state, target_total_v);
             // Return automatic charge voltage
-            // return ceil(dyn_chg_v * 10) / 10; // Charge Logic v2.0 - Can lead to oscillations
-            return dyn_chg_v;                    // Charge Logic v2.1.1 - Testing
+            return dyn_chg_v;
             }
     update_interval: 1s
-    filters:   
+    filters:    
     - sliding_window_moving_average:
         send_every: 1
         send_first_at: 1
-        window_size: int(id(charge_t_factor_setting).state)
+        window_size: ${charge_t_factor}
     - round: 1
 
 text_sensor:
@@ -851,7 +803,7 @@ text_sensor:
       name: "${name} errors"
     total_runtime_formatted:
       name: "${name} total runtime formatted"
-      entity_category: diagnostic
+      entity_category: diagnostic                                 
   # +--------------------------------------+
   # | Template text sensors                |
   # +--------------------------------------+
@@ -921,7 +873,7 @@ number:
     unit_of_measurement: V
     icon: mdi:battery-charging
     optimistic: true
-    entity_category: config
+    entity_category: config                           
   - platform: template
     name: "${name} Float voltage"
     id: "float_voltage"
@@ -934,25 +886,25 @@ number:
     unit_of_measurement: V
     icon: mdi:battery-charging
     optimistic: true
-    entity_category: config
+    entity_category: config                           
   - platform: template
-    name: "${name} Rebulk voltage"
+    name: "${name} Rebulk V."
     id: "rebulk_voltage"
     step: 0.1
     min_value: 51.2
-    max_value: 56.0
+    max_value: 53.6
     restore_value: true
     mode: "${input_number_mode}"
     initial_value: "${rebulk_v}"
     unit_of_measurement: V
     icon: mdi:sine-wave
     optimistic: true
-    entity_category: config
+    entity_category: config                           
   - platform: template
     name: "${name} Absorption Offset V."
     id: "absorption_offset"
     step: 0.05
-    min_value: -0.3
+    min_value: 0
     max_value: 0.3
     restore_value: true
     mode: "${input_number_mode}"
@@ -960,72 +912,7 @@ number:
     unit_of_measurement: V
     icon: mdi:sine-wave
     optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Float Transition Delay Cycles"
-    id: "eoc_cycle_threshold"
-    step: 30
-    min_value: 30
-    max_value: 1800
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${eoc_cycle_threshold_default}"
-    unit_of_measurement: "cycles"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Current Charge Factor Curve End"
-    id: "charge_a_factor_curve_end"
-    step: 0.1
-    min_value: 1.0
-    max_value: 5.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${charge_a_factor_curve_end_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Current Charge Factor Curve Shape"
-    id: "charge_a_factor_curve_shape"
-    step: 0.1
-    min_value: 0.1
-    max_value: 5.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${charge_a_factor_curve_shape_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Voltage Charge Aggressivity Factor"
-    id: "charge_v_factor_setting"
-    step: 0.1
-    min_value: 1.0
-    max_value: 5.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${charge_v_factor_setting_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Voltage Charge Speed Factor"
-    id: "charge_t_factor_setting"
-    step: 1.0
-    min_value: 1.0
-    max_value: 20.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${charge_t_factor_setting_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
+    entity_category: config                           
   - platform: template
     name: "${name} Charging current max"
     id: "charging_current"
@@ -1038,33 +925,7 @@ number:
     unit_of_measurement: A
     icon: mdi:current-dc
     optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Current Discharge Factor Curve End"
-    id: "discharge_a_factor_curve_end"
-    step: 0.1
-    min_value: 1.0
-    max_value: 5.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${discharge_a_factor_curve_end_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
-  - platform: template
-    name: "${name} Current Discharge Factor Curve Shape"
-    id: "discharge_a_factor_curve_shape"
-    step: 0.1
-    min_value: 0.1
-    max_value: 5.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${discharge_a_factor_curve_shape_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
+    entity_category: config                           
   - platform: template
     name: "${name} Discharging current max"
     id: "discharging_current"
@@ -1078,7 +939,7 @@ number:
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
-
+    
 button:
   - platform: jk_bms_ble
     retrieve_settings:
@@ -1366,7 +1227,6 @@ interval:
                         float cell_rebulk_v = (id(rebulk_voltage).state / id(cell_count).state);
                         float cell_absorption_offset_v = (id(absorption_offset).state / id(cell_count).state);
                         static int num_executions = 0;
-                        int target_num_executions = max(15 , int(id(eoc_cycle_threshold).state));
                         
                         // Force Bulk Logic
                         if (id(can_switch_force_bulk).state) {
@@ -1387,14 +1247,14 @@ interval:
                         
                           // Charging
                           if (id(current).state >= 0) {
-
+                            
                             float cv_min = 3.37;
                             float cv_max = 3.65;
                             float cutoff_current = (id(battery_capacity).state * 0.05 * (cell_bulk_v - cv_min) / (cv_max - cv_min));
                             float cutoff_voltage = (cv_min + (cv_max - cv_min)/(0.05 + cell_absorption_offset_v) * (id(current).state / id(battery_capacity).state));
                             
                             ESP_LOGI("main", "Cut-Off Current : %f", cutoff_current);
-                            ESP_LOGI("main", "Cut-Off Voltage : %f", cutoff_voltage);
+                            ESP_LOGI("main", "Cut-Off Voltage : %f", cutoff_voltage);                                                                                     
                           
                             // Stop Charging
                             if ((id(current).state <= cutoff_current) & (id(max_cell_voltage).state >= cutoff_voltage)) {
@@ -1403,7 +1263,7 @@ interval:
                               if ((!id(equalizing).state)) {
                                 num_executions += 1;
                                 ESP_LOGI("main", "EOC Cycle Count : %i", num_executions);
-                                if (num_executions > target_num_executions) {
+                                if (num_executions > ${eoc_cycle_threshold}) {
                                   num_executions = 0;
                                   id(charge_status) = "EOC";
                                 }

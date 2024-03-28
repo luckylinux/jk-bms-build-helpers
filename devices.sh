@@ -6,10 +6,12 @@ names=()
 #names+=("jk-bms-can-bat02")
 names+=("jk-bms-bat01")
 names+=("jk-bms-bat02")
+names+=("jk-bms-dummy") # Dummy Device
 
 macs=()
 macs+=("C8:47:8C:EC:1E:60")
 macs+=("C8:47:8C:E5:98:96")
+macs+=("12:34:56:78:90:AB") # Dummy MAC Address
 
 # Please "JK02" (hardware version >= 6.0 and < 11.0)
 # Please use "JK02_32S" if you own a new JK-BMS >= hardware version 11.0 (f.e. JK-B2A8S20P hw 11.XW, sw 11.26)
@@ -17,6 +19,7 @@ macs+=("C8:47:8C:E5:98:96")
 protocols=()
 protocols+=("JK02_32S") # HW v11.x for JK-BMS-BAT01
 protocols+=("JK02_24S") # HW v10.x for JK-BMS-BAT02
+protocols+=("JK02_DUMMY") # Dummy Protocol
 
 num=${#names[@]}
 maxindex=$(($num - 1))
