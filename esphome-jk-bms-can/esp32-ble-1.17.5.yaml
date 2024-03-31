@@ -61,7 +61,7 @@ substitutions:
   # 100A * 50V = 5000W
   charge_a: "200"
   # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of the absorption phase. (53.6V = 3.35V/Cell for 16S battery)
-  float_v: "53.6"
+  float_v: "53.9"
   # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (55.2V = 3.45V/Cell for 16S battery)
   bulk_v: "55.2"
   # Rebulk voltage, voltage less than FLOAT at which BMS requests rebulk. (52.8V = 3.3V/Cell for 16S battery)
@@ -72,7 +72,7 @@ substitutions:
   # Inverter offset, allows you to correct the inverter charging voltage
   # For example, with my Deye, if the requested charging voltage is 55.2v the Deye effective charging voltage will be 55.1v
   # An offset of 0.1 provides an effective charging voltage of 55.2v
-  inverter_offset_v: "0.1"
+  inverter_offset_v_default: "0.1"
   # Auto charge current control will automatically reduce the charging current as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
   # If unsure, leave the below settings as default, this will ensure charge current will taper correctly.
   # Factor to control the end of the charge current curve. A setting below 2 will extend the curve, above 2 will shorten the curve. 
@@ -282,6 +282,10 @@ globals:
     type: time_t
     restore_value: true
     initial_value: ''
+#  - id: charge_t_factor
+#    type: int
+#    restore_value: true
+#    initial_value: ${charge_t_factor_setting_default}
 
 output:
   - platform: gpio
@@ -800,6 +804,7 @@ sensor:
     lambda: !lambda |-
             // Variables
             float charge_v_factor = id(charge_v_factor_setting).state;
+            //charge_t_factor = int(id(charge_t_factor_setting).state);
             float cell_bulk_v = (id(bulk_voltage).state / id(cell_count).state);
             float target_total_v = 0;
             float excess_v = 0;
@@ -838,11 +843,13 @@ sensor:
             return dyn_chg_v;                    // Charge Logic v2.1.1 - Testing
             }
     update_interval: 1s
-    filters:   
+    filters:
     - sliding_window_moving_average:
         send_every: 1
         send_first_at: 1
-        window_size: int(id(charge_t_factor_setting).state)
+#        window_size: !lambda return int(max(1.0 , id(charge_t_factor_setting).state));
+#        window_size: ${charge_t_factor}
+        window_size: ${charge_t_factor_setting_default}
     - round: 1
 
 text_sensor:
@@ -949,7 +956,7 @@ number:
     optimistic: true
     entity_category: config
   - platform: template
-    name: "${name} Absorption Offset V."
+    name: "${name} Absorption Offset Voltage"
     id: "absorption_offset"
     step: 0.05
     min_value: -0.3
@@ -957,6 +964,19 @@ number:
     restore_value: true
     mode: "${input_number_mode}"
     initial_value: 0.1
+    unit_of_measurement: V
+    icon: mdi:sine-wave
+    optimistic: true
+    entity_category: config
+  - platform: template
+    name: "${name} Inverter Offset Voltage"
+    id: "inverter_offset_v"
+    step: 0.05
+    min_value: -0.3
+    max_value: 0.3
+    restore_value: true
+    mode: "${input_number_mode}"
+    initial_value: ${inverter_offset_v_default}
     unit_of_measurement: V
     icon: mdi:sine-wave
     optimistic: true
@@ -1013,19 +1033,19 @@ number:
     icon: mdi:cog
     optimistic: true
     entity_category: config
-  - platform: template
-    name: "${name} Voltage Charge Speed Factor"
-    id: "charge_t_factor_setting"
-    step: 1.0
-    min_value: 1.0
-    max_value: 20.0
-    restore_value: true
-    mode: "${input_number_mode}"
-    initial_value: "${charge_t_factor_setting_default}"
-    unit_of_measurement: "factor"
-    icon: mdi:cog
-    optimistic: true
-    entity_category: config
+#  - platform: template
+#    name: "${name} Voltage Charge Speed Factor"
+#    id: "charge_t_factor_setting"
+#    step: 1.0
+#    min_value: 1.0
+#    max_value: 20.0
+#    restore_value: true
+#    mode: "${input_number_mode}"
+#    initial_value: "${charge_t_factor_setting_default}"
+#    unit_of_measurement: "factor"
+#    icon: mdi:cog
+#    optimistic: true
+#    entity_category: config
   - platform: template
     name: "${name} Charging current max"
     id: "charging_current"
@@ -1441,13 +1461,13 @@ interval:
 
                       // Bulk Charge
                       if ((id(charge_status) == "Bulk") | (id(charge_status) == "Force Bulk") | (id(charge_status) == "Balancing") | (id(charge_status) == "Absorption")) {
-                        charging_v = (id(auto_cvl).state + ${inverter_offset_v});
+                        charging_v = (id(auto_cvl).state + id(inverter_offset_v).state);
                         charging_a = id(auto_ccl).state;
                         id(eoc) = false;                                                            // SOC 100% can't be sent
                       }
                       // Float Charge
                       else if (id(charge_status) == "Float") {
-                        charging_v = (id(float_voltage).state + ${inverter_offset_v});
+                        charging_v = (id(float_voltage).state + id(inverter_offset_v).state);
                         charging_a = id(auto_ccl).state;
                       }
                       // Wait : Stop Charging
