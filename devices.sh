@@ -27,8 +27,8 @@ topic_prefix[1]="battery"
 # jk-bms-dummy
 names[2]="jk-bms-dummy"     # Dummy Name
 macs[2]="12:34:56:78:90:AB" # Dummy MAC Address
+protocols[2]="JK02_32S"
 topic_prefix[2]="battery"
-protocols[2]="JK02_DUMMY"   # Dummy Protocol
 
 # Determine Number of Devices
 num=${#names[@]}
