@@ -18,7 +18,7 @@ mkdir -p $buildpath
 cd $buildpath
 
 # Create venv
-apt-get -y install python3.11-venv
+sudo apt-get -y install python3.11-venv
 python3 -m venv ./venv
 
 # Active venv
@@ -61,8 +61,17 @@ cp -r $currentpath/v2 ./
 
 # Execute Text Replacement
 source $parentpath/functions.sh
-replace_text "./$esphomeconfig" "board" "$board"
-replace_text "./$esphomeconfig" "variant" "$variant"
+
+files=$(find ./ -iname "*.yaml")
+for file in $files
+do
+   replace_text ./$file "board" "$board"
+   replace_text ./$file "variant" "$variant"
+   replace_text ./$file "topic_prefix" "${topic_prefix}"
+done
+
+# Clean Build Files to make sure all new/updated Entities Appear Correctly
+esphome clean $esphomeconfig
 
 # Build ESPHome
 esphome run $esphomeconfig
