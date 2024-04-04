@@ -212,7 +212,7 @@ ota:
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
 # If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
-#api:
+api:
 #  reboot_timeout: 0s
 
 # If you don't want to use ESPHome's native API you can use MQTT instead.
@@ -223,6 +223,10 @@ mqtt:
   username: !secret mqtt_username
   password: !secret mqtt_password
   id: mqtt_client
+  discovery: false # if api is enabled, discovery must be DISABLED (in order to prevent doubles discoveries in Home Assistant)
+  #discovery: true # if api is disabled, discovery must be ENABLED (in order to ensure automatic detection in Home Assistant)
+  discovery_unique_id_generator: mac
+  topic_prefix: {{mqtt_topic_prefix}}
   skip_cert_cn_check: true
 
 # In the event of problems with the WiFi network, the ESP32 will reboot every 15 minutes to try to resolve the problem.
