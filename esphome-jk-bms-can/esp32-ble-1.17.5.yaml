@@ -1117,7 +1117,10 @@ button:
       name: "${name} retrieve device info"
       entity_category: config
   - platform: restart
-    name: "JK-BMS ESP32 Restart"
+    name: "${name} ESP32 Restart (Normal Mode)"
+    entity_category: config
+  - platform: safe_mode
+    name: "${name} ESP32 Restart (Safe Mode)"
     entity_category: config
 
 # +--------------------------------------+
