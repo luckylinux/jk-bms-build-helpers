@@ -66,7 +66,8 @@ do
 done
 
 # Determine entities prefix
-entities_prefix="${name}"
+entities_id_prefix="${name}"
+entities_name_prefix="${name}"
 
 echo "Hostname set to <$name>"
 echo "MAC Addres set to <$mac>"
