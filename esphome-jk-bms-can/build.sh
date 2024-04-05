@@ -24,8 +24,11 @@ python3 -m venv ./venv
 # Active venv
 source venv/bin/activate
 
-# Install esphome
-pip3 install esphome
+# Install ESPHome
+pip3 install esphome # Optionally specify the desired version
+
+# Upgrade ESPHome
+#pip install --upgrade esphome # Force upgrade to latest version
 
 # Clone this external component
 #git clone https://github.com/syssi/esphome-jk-bms.git esphome-jk-bms-master
