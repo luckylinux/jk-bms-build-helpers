@@ -58,7 +58,10 @@ do
     topic_prefix=${topic_prefix[$selected]}
 done
 
+# Determine entities prefix
+entities_prefix="${name}"
+
 echo "Hostname set to <$name>"
 echo "MAC Addres set to <$mac>"
 echo "MQTT Topic Prefix: ${topic_prefix}"
-echo "MQTT Topic: ${topic_prefix}/${name}"
+echo "MQTT Topic: ${topic_prefix}/${entities_prefix}"
