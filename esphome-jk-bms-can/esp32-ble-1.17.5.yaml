@@ -237,7 +237,7 @@ mqtt:
 # In the event of problems with the WiFi network, the ESP32 will reboot every 15 minutes to try to resolve the problem.
 # If we don't want to connect the ESP32 to the WiFi network please remove the 4 lines below.
 wifi:
-  power_save_mode: none # Disabling Power Saving Could help reduce issues with OTA
+  power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret wifi_domain
