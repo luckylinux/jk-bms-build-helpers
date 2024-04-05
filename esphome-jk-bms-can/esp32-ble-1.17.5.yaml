@@ -215,6 +215,10 @@ ota:
 api:
 #  reboot_timeout: 0s
 
+# Enable MDNS in order to have the node announce itself on the local network using the multicast DNS (mDNS) protocol.
+mdns:
+  disabled: false
+
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
 mqtt:
