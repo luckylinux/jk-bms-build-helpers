@@ -202,6 +202,7 @@ logger:
 
 ota:
   safe_mode: true
+  version: 1
   password: !secret ota_password
   on_begin:
     then:
