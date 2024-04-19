@@ -214,7 +214,11 @@ ota:
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
 # If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
 api:
-  reboot_timeout: 30min
+  # Disable Reboot COMPLETELY
+  reboot_timeout: 0s
+
+  # Reboot in case of lost Connection after 30 minutes
+  #reboot_timeout: 30min
 
 # Enable MDNS in order to have the node announce itself on the local network using the multicast DNS (mDNS) protocol.
 mdns:
@@ -223,7 +227,12 @@ mdns:
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
 mqtt:
-  reboot_timeout: 30min
+  # Disable Reboot COMPLETELY
+  reboot_timeout: 0s
+
+  # Reboot in case of lost Connection after 30 minutes
+  #reboot_timeout: 30min
+
   broker: !secret mqtt_host
   port: !secret mqtt_port
   username: !secret mqtt_username
@@ -239,7 +248,13 @@ mqtt:
 # If we don't want to connect the ESP32 to the WiFi network please remove the 4 lines below.
 wifi:
   power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
-  reboot_timeout: 30min
+
+  # Disable Reboot COMPLETELY
+  reboot_timeout: 0s
+
+  # Reboot in case of lost Connection after 30 minutes
+  #reboot_timeout: 30min
+
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret wifi_domain
