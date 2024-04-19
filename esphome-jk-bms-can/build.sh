@@ -34,15 +34,21 @@ pip3 install esphome # Optionally specify the desired version
 #git clone https://github.com/syssi/esphome-jk-bms.git esphome-jk-bms-master
 #cd esphome-jk-bms-master
 version="1.17.5"
-if [[ ! -f "esphome-jk-bms-can-$version.tar.gz" ]]
-then
-   wget https://github.com/Sleeper85/esphome-jk-bms-can/archive/refs/tags/V$version.tar.gz -O esphome-jk-bms-can-$version.tar.gz
-fi
 
-if [[ ! -d  "esphome-jk-bms-can-$version" ]]
-then
-   tar xvf esphome-jk-bms-can-$version.tar.gz
-fi
+# Create Folder if not Exist
+mkdir -p esphome-jk-bms-can-$version
+
+# No need to clone the whole Repository for a single File - It just makes stuff confusing
+#if [[ ! -f "esphome-jk-bms-can-$version.tar.gz" ]]
+#then
+#   wget https://github.com/Sleeper85/esphome-jk-bms-can/archive/refs/tags/V$version.tar.gz -O esphome-jk-bms-can-$version.tar.gz
+#fi
+#if [[ ! -d  "esphome-jk-bms-can-$version" ]]
+#then
+#   tar xvf esphome-jk-bms-can-$version.tar.gz
+#fi
+
+# Change Folder
 cd esphome-jk-bms-can-$version
 
 # Define ESPHome configuration file
