@@ -80,7 +80,7 @@ do
 done
 
 # Clean Build Files to make sure all new/updated Entities Appear Correctly
-#esphome clean $esphomeconfig
+# esphome clean $esphomeconfig
 
 # Build ESPHome
 esphome run $esphomeconfig

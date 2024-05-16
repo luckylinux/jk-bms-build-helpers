@@ -185,6 +185,8 @@ time:
   - platform: sntp
     id: sntp_time
     timezone: Europe/Copenhagen
+    servers:
+      - 172.22.1.1
   - platform: homeassistant
     id: homeassistant_time
     timezone: Europe/Copenhagen
@@ -451,6 +453,18 @@ select:
           args: ["x.c_str()"]
 
 binary_sensor:
+  - platform: gpio
+    pin: GPIO41
+    id: button_atom_s3_lite_gpio41
+    name: "Button GPIO41"
+    on_press:
+      then:
+        - logger.log: Manually attempting to restart WiFi.
+        - wifi.disable:
+        - delay: 5s
+        - wifi.enable:
+        - delay: 1s
+
   - platform: jk_bms_ble
     balancing:
       id: equalizing
@@ -808,7 +822,7 @@ sensor:
             id: current_homeassistant_timestamp_human
             state: !lambda |-
               char str[19];
-              strftime(str, sizeof(str), " %H:%M %d %b %Y", localtime(&id(current_homeassistant_timestamp)));
+              strftime(str, sizeof(str), " %Y-%m-%d %H:%M", localtime(&id(current_homeassistant_timestamp)));
               return  {str};
     entity_category: diagnostic
 
@@ -1259,6 +1273,8 @@ canbus: # 0x305 - Inverter ACK - SMA/LG/Pylon/Goodwe reply
             id(can_ack_counter) = 0;                              // Reset ACK counter
             id(can_bus_status).publish_state(true);               // Set CANBUS Status to ON
             ESP_LOGI("main", "received can id: 0x305 ACK");
+
+
 
 interval:
   - interval: 120s
