@@ -154,7 +154,7 @@ substitutions:
   # Using CANBus Unit (CA-IS3050G) - SKU: U085
   can_tx_pin: GPIO2
   can_rx_pin: GPIO1
-  
+
 # +------------------------------------------------------------------+
 # | ** The settings below can be modified according to your needs ** |
 # +------------------------------------------------------------------+
@@ -180,6 +180,14 @@ esphome:
       - switch.turn_on: can_switch_auto_charge_current
       - switch.turn_on: can_switch_auto_discharge_current
       - switch.turn_on: can_switch_auto_charge_voltage
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Copenhagen
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/Copenhagen
 
 # +--------------------------------------+
 # | ESP32 settings                       |
@@ -336,6 +344,17 @@ globals:
     type: time_t
     restore_value: true
     initial_value: ''
+
+
+  - id: current_sntp_timestamp
+    type: time_t
+    restore_value: true
+    initial_value: ''
+  - id: current_homeassistant_timestamp
+    type: time_t
+    restore_value: true
+    initial_value: ''
+
 #  - id: charge_t_factor
 #    type: int
 #    restore_value: true
@@ -385,9 +404,11 @@ jk_bms_ble:
 
 # +--------------------------------------+
 
-time: # Enable time component to reset energy at midnight
-  - platform: sntp
-    id: sntp_time
+#
+#time: # Enable time component to reset energy at midnight
+#  - platform: sntp
+#    id: sntp_time
+#
 
 select:
   - platform: template
@@ -751,9 +772,44 @@ sensor:
             id: eoc_timestamp_human
             state: !lambda |-
               char str[19];
-              strftime(str, sizeof(str), " %H:%M %d %b %Y", localtime(&id(eoc_timestamp)));
+              strftime(str, sizeof(str), " %Y-%m-%d %H:%M", localtime(&id(eoc_timestamp)));
               return  {str};
     entity_category: diagnostic
+
+
+  - platform: template
+    name: "${name} Current SNTP Local Time (Timestamp)"
+    device_class: timestamp
+    id: current_sntp_timestamp_template
+    lambda: return id(current_sntp_timestamp);
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: current_sntp_timestamp_human
+            state: !lambda |-
+              char str[19];
+              strftime(str, sizeof(str), " %Y-%m-%d %H:%M", localtime(&id(current_sntp_timestamp)));
+              return  {str};
+    entity_category: diagnostic
+
+
+  - platform: template
+    name: "${name} Current Home Assistant Local Time (Timestamp)"
+    device_class: timestamp
+    id: current_homeassistant_timestamp_template
+    lambda: return id(current_homeassistant_timestamp);
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: current_homeassistant_timestamp_human
+            state: !lambda |-
+              char str[19];
+              strftime(str, sizeof(str), " %H:%M %d %b %Y", localtime(&id(current_homeassistant_timestamp)));
+              return  {str};
+    entity_category: diagnostic
+
+
+
   # +--------------------------------------+
   # | Auto Charge Current Control          |
   # +--------------------------------------+
@@ -917,15 +973,28 @@ text_sensor:
   # | Template text sensors                |
   # +--------------------------------------+
   - platform: template
-    name: ${name} Uptime Human Readable
+    name: ${name} Uptime (Human Readable)
     id: uptime_human
     icon: mdi:clock-start
     entity_category: diagnostic
   - platform: template
-    name: ${name} Last Complete Charge Human Readable
+    name: ${name} Last Complete Charge (Human Readable)
     id: eoc_timestamp_human
     icon: mdi:clock-start
     entity_category: diagnostic
+
+  - platform: template
+    name: ${name} SNTP Current Local Time (Human Readable)
+    id: current_sntp_timestamp_human
+    icon: mdi:clock-start
+    entity_category: diagnostic
+
+  - platform: template
+    name: ${name} Home Assistant Current Local Time (Human Readable)
+    id: current_homeassistant_timestamp_human
+    icon: mdi:clock-start
+    entity_category: diagnostic
+
   - platform: template
     name: "${name} Charging Status"
     id: charging_status
@@ -1539,7 +1608,11 @@ interval:
                         id(eoc) = true;                                                             // SOC 100% can be sent
                         id(eoc_timestamp) = id(sntp_time).utcnow().timestamp;                       // Store charge completion timestamp
                       }
-                      
+
+                      // Store current Time
+                      id(current_sntp_timestamp) = id(sntp_time).utcnow().timestamp;
+                      id(current_homeassistant_timestamp) = id(homeassistant_time).utcnow().timestamp;
+
                       // +--------------------------------------+
                       // | Discharge values                     |
                       // +--------------------------------------+
