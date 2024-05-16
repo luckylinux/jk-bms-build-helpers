@@ -264,11 +264,19 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret wifi_domain
-  ap:
-    ssid: !secret wifi_ap_ssid
-    password: !secret wifi_ap_password
 
-captive_portal:
+# According to https://community.home-assistant.io/t/cant-stop-esphome-restarting-with-weak-wifi/453821/23
+# Disabling fallback AP and captive_portal **MIGHT** to avoid restarting
+# Furthermore the ap_timeout of 60s might be too small,  in case where the Rock 5B SBC Reboots.
+# It might need 120-180s to fully bring up Network Interfaces etc
+#
+#  ap:
+#    ssid: !secret wifi_ap_ssid
+#    password: !secret wifi_ap_password
+#    ap_timeout: 3600s
+#
+#captive_portal:
+#
 
 #web_server:
 #  port: 80
