@@ -264,7 +264,7 @@ mqtt:
 wifi:
   #power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
 
-  # Set Reboot Timeout VERY LARGE
+  # Set Reboot Timeout somewhat
   # !! Reboot timeout only works with AP disabled !!
   # !! https://github.com/esphome/issues/issues/1679 !!
   reboot_timeout: 24h
@@ -318,6 +318,10 @@ wifi:
 # +--------------------------------------+
 # | ** Don't make changes below this **  |
 # +--------------------------------------+
+
+
+
+
 
 globals:
   - id: can_ack_counter
@@ -1260,31 +1264,46 @@ interval:
   - interval: 120s
     then:
       - lambda: id(can_ack_counter) = 0;                          // Reset ACK counter for test inverter ACK
-          
+
+ # Check every 5 minutes if WiFi is NOT Connected
+ # In that case, disable and re-enable the Adapter to attempt connection again
+ - interval: 300s
+   then:
+     - if:
+         condition: wifi.connected
+         then:
+           # Do Nothing
+         else:
+           - logger.log: WiFi was disconnected. Attempting to restart WiFi.
+           - wifi.disable:
+           - delay: 5s
+           - wifi.enable:
+           - delay: 1s
+
   - interval: 100ms
     then:
       - if:
           condition:
             lambda: |-
-              
+
               if (id(can_ack_counter) < 20) {                     // Inverter ACK ? => CANBUS ON
-                
+
                 id(can_ack_counter)++;                            // CANBUS ACK counter ++
                 id(can_msg_counter)++;                            // CANBUS MSG counter ++
                 return true;                                      // Condition OK
-                
+
               }
               else if (id(can_bus_status).state == false) {       // CANBUS already OFF ?
-                
+
                 return false;                                     // Nothing to do
-                
+
               }
               else {
-              
+
                 id(can_bus_status).publish_state(false);          // Set CANBUS Status to OFF
                 ESP_LOGI("main", "No rx can 0x305 reply, Inverter not connected/responding...");
                 return false;                                     // Condition NOK
-                
+
               }
 
           then:
@@ -1295,11 +1314,11 @@ interval:
                   canbus.send:
                     can_id: 0x359
                     data: !lambda |-
-                      
+
                       // +---------------------------+
                       // | JK-BMS errors bitmask     |
                       // +---------------------------+
-                      
+
                       // 0x8B 0x00 0x00: Battery warning message              0000 0000 0000 0000
                       //
                       // Bit 0    Low capacity                                1 (alarm), 0 (normal)    warning
@@ -1323,11 +1342,11 @@ interval:
                       // 0x0001 = 00000000 00000001: Low capacity alarm
                       // 0x0002 = 00000000 00000010: MOS tube over-temperature alarm
                       // 0x0003 = 00000000 00000011: Low capacity alarm AND power tube over-temperature alarm
-                      
+
                       // +---------------------------+
                       // | Protection : byte 0 and 1 |
                       // +---------------------------+
-                      
+
                       uint8_t can_mesg[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
                       // JK-BMS alarm ?
@@ -1380,14 +1399,14 @@ interval:
                       // +---------------------------+
                       // | Warning : byte 2 and 3    |
                       // +---------------------------+
-                      
+
                       can_mesg[2] = 0x00;               // byte2 (JK-BMS infos not available)
                       can_mesg[3] = 0x00;               // byte3 (JK-BMS infos not available)
-                      
+
                       // +---------------------------+
                       // | Flags : byte 4 to 7       |
                       // +---------------------------+
-                      
+
                       int batt_capacity = id(battery_capacity).state;
                       int batt_module;
 
@@ -1399,15 +1418,15 @@ interval:
                       else if (batt_capacity <= 600) batt_module = 6;
                       else if (batt_capacity <= 700) batt_module = 7;
                       else batt_module = 8;
-                      
+
                       can_mesg[4] = batt_module;        // byte4 - Module in parallel (max 8)
                       can_mesg[5] = 0x00;               // byte5
                       can_mesg[6] = 0x00;               // byte6
                       can_mesg[7] = 0x00;               // byte7 - DIP switches 1,3 10000100 0x84                       
-                      
+
                       ESP_LOGI("main", "send can id: 0x359 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                       return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
-                      
+
             - if: # 0x35A - Protection Alarms and Warning ( SMA / Victron )
                 condition:
                   lambda: return ((id(can_msg_counter) == 1) & ((id(can_protocol).active_index() == 3) | (id(can_protocol).active_index() == 4)));
@@ -1415,11 +1434,11 @@ interval:
                   canbus.send:
                     can_id: 0x35A
                     data: !lambda |-
-                      
+
                       // +---------------------------+
                       // | Protection : byte 0,1,2,3 |
                       // +---------------------------+
-                      
+
                       uint8_t can_mesg[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
                       // JK-BMS alarm ?
@@ -1468,10 +1487,10 @@ interval:
                       }
                       // No Alarm
                       else id(alarm_status) = "NoAlarm";
-                      
+
                       ESP_LOGI("main", "send can id: 0x35A hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                       return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
-                      
+
             - if: # 0x351 - BMS instruction : Charge Volts, Charge Amps, Discharge Amps, Min voltage
                 condition:
                   lambda: return id(can_msg_counter) == 2;
@@ -1479,13 +1498,13 @@ interval:
                   canbus.send:
                     can_id: 0x351
                     data: !lambda |-
-                      
+
                       // +-----------------------------------------------+
                       // | Cut-off Current Charging Logic for LFP        |
                       // +-----------------------------------------------+
-                      
+
                       // Warning : information from JK BMS is not available immediately after boot
-                      
+
                       // JK-BMS Alarm !
                       if (id(errors_bitmask).state > 1) id(charge_status) = "Alarm";
                       // JK-BMS Alarm ended
@@ -1501,12 +1520,12 @@ interval:
                       else if ((id(charge_status) == "Force Bulk") & (!id(can_switch_force_bulk).state)) id(charge_status) = "Wait";
                       // No Balancing => Wait
                       else if ((id(charge_status) == "Balancing") & (!id(bms_switch_balancing).state)) id(charge_status) = "Wait";
-                      
+
                       // +-----------------------------------------------+
                       // | Charge ON : BMS and CAN charging switch is ON |
                       // +-----------------------------------------------+
                       else if ((id(bms_switch_charging).state) & (id(can_switch_charging).state)) {
-                      
+
                         // Variables
                         float cell_bulk_v = (id(bulk_voltage).state / id(cell_count).state);
                         float cell_rebulk_v = (id(rebulk_voltage).state / id(cell_count).state);
