@@ -215,6 +215,8 @@ ota:
 # If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
 api:
   # Set Reboot Timeout VERY LARGE
+  # !! Reboot timeout only works with AP disabled !!
+  # !! https://github.com/esphome/issues/issues/1679 !!
   reboot_timeout: 24h
 
   # Reboot in case of lost Connection after 30 minutes
@@ -228,6 +230,8 @@ mdns:
 # In this case don't forget to remove the 'api:' section.
 mqtt:
   # Set Reboot Timeout VERY LARGE
+  # !! Reboot timeout only works with AP disabled !!
+  # !! https://github.com/esphome/issues/issues/1679 !!
   reboot_timeout: 24h
 
   # Disable Reboot COMPLETELY
@@ -253,6 +257,8 @@ wifi:
   #power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
 
   # Set Reboot Timeout VERY LARGE
+  # !! Reboot timeout only works with AP disabled !!
+  # !! https://github.com/esphome/issues/issues/1679 !!
   reboot_timeout: 24h
 
   # Disable Reboot COMPLETELY
@@ -269,6 +275,10 @@ wifi:
 # Disabling fallback AP and captive_portal **MIGHT** to avoid restarting
 # Furthermore the ap_timeout of 60s might be too small,  in case where the Rock 5B SBC Reboots.
 # It might need 120-180s to fully bring up Network Interfaces etc
+#
+# Furthermore
+# !! Reboot timeout only works with AP disabled !!
+# !! https://github.com/esphome/issues/issues/1679 !!
 #
 #  ap:
 #    ssid: !secret wifi_ap_ssid
