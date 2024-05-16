@@ -1265,20 +1265,20 @@ interval:
     then:
       - lambda: id(can_ack_counter) = 0;                          // Reset ACK counter for test inverter ACK
 
- # Check every 5 minutes if WiFi is NOT Connected
- # In that case, disable and re-enable the Adapter to attempt connection again
- - interval: 300s
-   then:
-     - if:
-         condition: wifi.connected
-         then:
-           # Do Nothing
-         else:
-           - logger.log: WiFi was disconnected. Attempting to restart WiFi.
-           - wifi.disable:
-           - delay: 5s
-           - wifi.enable:
-           - delay: 1s
+  # Check every 5 minutes if WiFi is NOT Connected
+  # In that case, disable and re-enable the Adapter to attempt connection again
+  - interval: 300s
+    then:
+      - if:
+          condition: wifi.connected
+          then:
+            # Do Nothing
+          else:
+            - logger.log: WiFi was disconnected. Attempting to restart WiFi.
+            - wifi.disable:
+            - delay: 5s
+            - wifi.enable:
+            - delay: 1s
 
   - interval: 100ms
     then:
