@@ -18,7 +18,7 @@ mkdir -p $buildpath
 cd $buildpath
 
 # Create venv
-sudo apt-get -y install python3.11-venv
+sudo apt-get -y install python3.12-venv
 python3 -m venv ./venv
 
 # Active venv
