@@ -221,7 +221,7 @@ esp32:
     # Introduced on 2024-05-17 while trying to solve a Watchdog Triggering on WiFi Connection Loss Issue
     sdkconfig_options:
       CONFIG_ESP_TASK_WDT: y
-      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "30"
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
 
 external_components:
@@ -272,6 +272,11 @@ mqtt:
 
   # Reboot in case of lost Connection after 30 minutes
   #reboot_timeout: 30min
+
+  # Introduced on 2024-05-17 while trying to solve a Watchdog Triggering on WiFi Connection Loss Issue
+  # The time to keep the MQTT socket alive, decreasing this can help with overall stability due to more WiFi traffic with more pings.
+  # Reduced from default (15s) to 5s in order to see if this prevents triggering the Watchdog
+  keepalive: 5s
 
   broker: !secret mqtt_host
   port: !secret mqtt_port
