@@ -168,6 +168,12 @@ esphome:
     board_build.flash_mode: dio
     build_flags:
       - -DCONFIG_ARDUINO_LOOP_STACK_SIZE=32768
+    # Added on 2024-05-17 while troubleshooting WiFi Signal Loss triggering ESP32 Watchdog causing a reboot
+    # Based on https://github.com/syssi/esphome-jk-bms/issues/453#issuecomment-1951326010
+    # This option is needed in order to attempt to use newer version of esp-idf to see if the Watchdog Issue disappears
+    build_unflags:
+      - -Werror=all
+      - -Wall
   comment: ${device_description}
   project:
     name: !secret project_name
@@ -200,6 +206,23 @@ esp32:
   variant: {{variant}}
   framework:
     type: esp-idf
+    # Introduced on 2024-05-17 while trying to solve a Watchdog Triggering on WiFi Connection Loss Issue
+    # Were obtained on ESPHome Discord Channel while debugging OTA Issue on esp32-s3-wroom-1-n16r8 for another Project
+    # Doesn't work - Compatibility Issues with ESPHome SNTP Component
+    #version: 5.1.1
+    #platform_version: 6.4.0
+
+    # Latest Stable Release Available
+    # Doesn't work - Compatibility Issues with ESPHome SNTP Component
+    #version: 5.2.1
+    #platform_version: 6.7.0
+
+
+    # Introduced on 2024-05-17 while trying to solve a Watchdog Triggering on WiFi Connection Loss Issue
+    sdkconfig_options:
+      CONFIG_ESP_TASK_WDT: y
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "10"
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y
 
 external_components:
   - source: ${external_components_source}
@@ -264,7 +287,8 @@ mqtt:
 # In the event of problems with the WiFi network, the ESP32 will reboot every 15 minutes to try to resolve the problem.
 # If we don't want to connect the ESP32 to the WiFi network please remove the 4 lines below.
 wifi:
-  #power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
+  # Reintroduced on 2024-05-17 while attempting to solve a WiFi Signal Loss triggering Device Watchdog Issue
+  power_save_mode: light # Reducing Power Saving Could help reduce issues with OTA
 
   # Set Reboot Timeout somewhat
   # !! Reboot timeout only works with AP disabled !!
@@ -280,6 +304,9 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret wifi_domain
+
+  # Introduced on 2024-05-17 while attempting to solve a WiFi Signal Loss triggering Device Watchdog Issue
+  fast_connect: true
 
 # According to https://community.home-assistant.io/t/cant-stop-esphome-restarting-with-weak-wifi/453821/23
 # Disabling fallback AP and captive_portal **MIGHT** to avoid restarting
@@ -461,7 +488,7 @@ binary_sensor:
       then:
         - logger.log: Manually attempting to restart WiFi.
         - wifi.disable:
-        - delay: 5s
+        - delay: 3s
         - wifi.enable:
         - delay: 1s
 
@@ -1292,7 +1319,7 @@ interval:
           else:
             - logger.log: WiFi was disconnected. Attempting to restart WiFi.
             - wifi.disable:
-            - delay: 5s
+            - delay: 3s
             - wifi.enable:
             - delay: 1s
 
