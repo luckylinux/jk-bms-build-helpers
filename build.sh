@@ -1,10 +1,21 @@
 #!/bin/bash
 
-# Store current path
-currentpath=$(pwd)
+# Determine toolpath if not set already
+relativepath="./" # Define relative path to go from this script to the root level of the tool
+if [[ ! -v esphometoolpath ]]; then scriptpath=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ); esphometoolpath=$(realpath --canonicalize-missing $scriptpath/$relativepath); fi
 
 # Get Parent path
-parentpath=$(dirname $currentpath)
+parentpath=$(dirname $esphometoolpath)
+
+# Define Project
+projectname="esphome-jk-bms-can"
+
+# Build Project Path
+projectpath="${parentpath}/${projectname}"
+
+# Build Configuration Path
+# !! To be changed in the Future !!
+configpath="${esphometoolpath}"
 
 # Define board
 board="esp32-s3-devkitc-1" # Works for Atom S3 Lite
@@ -13,19 +24,19 @@ board="esp32-s3-devkitc-1" # Works for Atom S3 Lite
 variant="esp32s3" # Works for Atom S3 Lite
 
 # Build folder
-buildpath="$HOME/ESPHome"
-mkdir -p $buildpath
-cd $buildpath
+buildbasepath="$HOME/ESPHome"
+mkdir -p $buildbasepath
+cd $buildbasepath || exit
 
 # Create venv
-sudo apt-get -y install python3.12-venv
-python3 -m venv ./venv
+#sudo apt-get -y install python3.12-venv
+#python3 -m venv ./venv
 
 # Active venv
 source venv/bin/activate
 
 # Install ESPHome
-pip3 install esphome # Optionally specify the desired version
+#pip3 install esphome # Optionally specify the desired version
 
 # Upgrade ESPHome
 #pip install --upgrade esphome # Force upgrade to latest version
@@ -33,10 +44,19 @@ pip3 install esphome # Optionally specify the desired version
 # Clone this external component
 #git clone https://github.com/syssi/esphome-jk-bms.git esphome-jk-bms-master
 #cd esphome-jk-bms-master
-version="1.17.5"
+
+# Define Version
+version="1.4.3"
+
+# Define ESPHome configuration file
+#esphomeconfig="esp32-ble-${version}.yaml"
+esphomeconfig="one-bms_JK-ALL_BLE.yaml"
+
+# Define Build Path
+buildfullpath="${buildbasepath}/${projectname}/${version}"
 
 # Create Folder if not Exist
-mkdir -p esphome-jk-bms-can-$version
+mkdir -p ${buildfullpath}
 
 # No need to clone the whole Repository for a single File - It just makes stuff confusing
 #if [[ ! -f "esphome-jk-bms-can-$version.tar.gz" ]]
@@ -49,34 +69,39 @@ mkdir -p esphome-jk-bms-can-$version
 #fi
 
 # Change Folder
-cd esphome-jk-bms-can-$version
+cd ${buildfullpath} || exit
 
-# Define ESPHome configuration file
-esphomeconfig="esp32-ble-$version.yaml"
+# Echo
+echo "Using ${buildfullpath} as Build Folder"
 
 # Configure Device based on Database
-source $parentpath/devices.sh
-
-# Set Secrets
-source $parentpath/secrets.sh
+source ${configpath}/devices.sh
 
 # Validate the configuration, create a binary, upload it, and start logs
-# If you use a esp8266 run the esp8266-examle.yaml
-cp $currentpath/$esphomeconfig ./$esphomeconfig
+cp ${projectpath}/${esphomeconfig} ./${esphomeconfig}
+
+# Copy all Files to the Build Folder
+cp -ar ${projectpath}/* ./
+
+# Set Secrets
+source ${configpath}/secrets.sh
 
 # Copy Required CSS/JS For Webserver into BuildFolder
-cp -r $currentpath/v1 ./
-cp -r $currentpath/v2 ./
+#cp -r ${projectpath}/v1 ./
+#cp -r ${projectpath}/v2 ./
 
 # Execute Text Replacement
-source $parentpath/functions.sh
+source ${esphometoolpath}/functions.sh
 
-files=$(find ./ -iname "*.yaml")
+# Echo
+echo "Using ${buildfullpath} as Build Folder"
+
+files=$(find ${buildfullpath}/ -iname "*.yaml")
 for file in $files
 do
-   replace_text ./$file "board" "$board"
-   replace_text ./$file "variant" "$variant"
-   replace_text ./$file "mqtt_topic_prefix" "${topic_prefix}"
+   replace_text $file "board" "$board"
+   replace_text $file "variant" "$variant"
+   replace_text $file "mqtt_topic_prefix" "${topic_prefix}"
 done
 
 # Clean Build Files to make sure all new/updated Entities Appear Correctly
@@ -99,4 +124,4 @@ then
 fi
 
 # Change back to currentpath
-cd $currentpath
+cd $esphometoolpath
