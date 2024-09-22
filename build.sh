@@ -50,7 +50,8 @@ version="1.4.3"
 
 # Define ESPHome configuration file
 #esphomeconfig="esp32-ble-${version}.yaml"
-esphomeconfig="one-bms_JK-ALL_BLE.yaml"
+esphomeconfig="esp32-ble-1.17.5.yaml"
+#esphomeconfig="one-bms_JK-ALL_BLE.yaml"
 
 # Define Build Path
 buildfullpath="${buildbasepath}/${projectname}/${version}"

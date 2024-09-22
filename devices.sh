@@ -27,23 +27,39 @@ protocols[1]="JK02_24S"                      # HW v10.x for JK-BMS-BAT02
 #topic_prefix[1]=""                          # This seems to disable MQTT altogether
 topic_prefix[1]="jk-bms-bat02"               # Original
 
+# jk-bms-bat03
+names[2]="jk-bms-bat03"
+macs[2]="C8:47:80:07:BC:75"
+protocols[2]="JK02_32S"                      # HW v10.x for JK-BMS-BAT02
+#topic_prefix[2]="battery/jk-bms-bat03"      # Changing to this will require refactoring all the entities in Home Assistant"
+#topic_prefix[2]=""                          # This seems to disable MQTT altogether
+topic_prefix[2]="jk-bms-bat03"               # Original
+
+# jk-bms-bat04
+names[3]="jk-bms-bat04"
+macs[3]="12:34:56:78:99:01"
+protocols[3]="JK02_32S"                      # HW v10.x for JK-BMS-BAT02
+#topic_prefix[3]="battery/jk-bms-bat04"      # Changing to this will require refactoring all the entities in Home Assistant"
+#topic_prefix[3]=""                          # This seems to disable MQTT altogether
+topic_prefix[3]="jk-bms-bat04"               # Original
+
 # Dummy Device to test build & prevent automatic OTA Upload
 # jk-bms-dummy
-names[2]="jk-bms-dummy"                      # Dummy Name
-macs[2]="12:34:56:78:90:AB"                  # Dummy MAC Address
-protocols[2]="JK02_32S"
-#topic_prefix[2]="battery/jk-bms-dummy"      # Changing to this will require refactoring all the entities in Home Assistant
-#topic_prefix[2]=""                          # This seems to disable MQTT altogether
-topic_prefix[2]="jk-bms-dummy"               # Original
+names[4]="jk-bms-dummy"                      # Dummy Name
+macs[4]="12:34:56:78:90:AB"                  # Dummy MAC Address
+protocols[4]="JK02_32S"
+#topic_prefix[4]="battery/jk-bms-dummy"      # Changing to this will require refactoring all the entities in Home Assistant
+#topic_prefix[4]=""                          # This seems to disable MQTT altogether
+topic_prefix[4]="jk-bms-dummy"               # Original
 
 # Dummy Device to test build & prevent automatic OTA Upload
 # jk-bms-dummy-canbus-tester
-names[3]="jk-bms-dummy-canbus-tester"        # Dummy Name
-macs[3]="12:34:56:78:90:AB"                  # Dummy MAC Address
-protocols[3]="JK02_32S"
-#topic_prefix[3]="battery/jk-bms-dummy-canbus-tester"      # Changing to this will require refactoring all the entities in Home Assistant
-#topic_prefix[3]=""                          # This seems to disable MQTT altogether
-topic_prefix[3]="jk-bms-dummy-canbus-tester" # Original
+names[5]="jk-bms-dummy-canbus-tester"        # Dummy Name
+macs[5]="12:34:56:78:90:AB"                  # Dummy MAC Address
+protocols[5]="JK02_32S"
+#topic_prefix[5]="battery/jk-bms-dummy-canbus-tester"      # Changing to this will require refactoring all the entities in Home Assistant
+#topic_prefix[5]=""                          # This seems to disable MQTT altogether
+topic_prefix[5]="jk-bms-dummy-canbus-tester" # Original
 
 
 # Determine Number of Devices
