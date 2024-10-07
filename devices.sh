@@ -37,7 +37,7 @@ topic_prefix[2]="jk-bms-bat03"               # Original
 
 # jk-bms-bat04
 names[3]="jk-bms-bat04"
-macs[3]="12:34:56:78:99:01"
+macs[3]="C8:47:80:07:BA:80"
 protocols[3]="JK02_32S"                      # HW v10.x for JK-BMS-BAT02
 #topic_prefix[3]="battery/jk-bms-bat04"      # Changing to this will require refactoring all the entities in Home Assistant"
 #topic_prefix[3]=""                          # This seems to disable MQTT altogether
